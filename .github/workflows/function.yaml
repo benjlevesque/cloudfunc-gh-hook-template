@@ -1,0 +1,41 @@
+name: Deploy
+on: [push]
+
+jobs:
+  build:
+    name: Build Function
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install deps and build (with cache)
+      uses: bahmutov/npm-install@v1
+
+    - name: Build
+      run: yarn build
+
+  deploy:
+    name: Deploy Function
+    needs: build
+    if: ${{ github.ref == 'refs/heads/main'}}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@master
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        export_default_credentials: true
+    
+    - name: Install deps and build (with cache)
+      uses: bahmutov/npm-install@v1
+
+    - name: Build
+      run: yarn build
+
+    # This will not update the existing env variables. 
+    # To update an environment variable, run yarn deploy locally with the new value in env_vars.yaml
+    - name: Deploy
+      run: yarn deploy:function

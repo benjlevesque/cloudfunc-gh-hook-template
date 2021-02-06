@@ -1,0 +1,5 @@
+# This file is used for DEPLOYMENT
+
+# rename this file to env_vars.yaml and fill the values
+
+WEBHOOK_SECRET: YOUR_VALUE
